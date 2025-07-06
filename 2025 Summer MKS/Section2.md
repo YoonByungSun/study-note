@@ -80,9 +80,8 @@
 
 - **보상 함수 (Reward Function)**  
   특정 상태 $s$에서 특정 행동 $a$를 했을 때 얻는 보상의 기댓값 $R^a_s$  
-  $$
-  R^a_s = \mathbb{E}[R_{t+1} \mid S_t=s, A_t=a]
-  $$
+
+    $$R^a_s = \mathbb{E}[R_{t+1} \mid S_t=s, A_t=a]$$
 
 - **상태 변환 확률 (State Transition Function)**  
   상태 $s$에서 행동 $a$를 했을 때 다음 상태가 $s'$가 될 확률 $P^a_{ss'}$
@@ -90,44 +89,42 @@
 - **감가율 (Discount Factor)**  
   - 미래의 보상을 얼마나 감가(discount)할지 결정해주는 비율  
   - 일반적으로 감가율은 $\gamma$로 표기  
-  $$
-  \gamma \in [0,1]
-  $$
+
+    $$\gamma \in [0,1]$$
 
 - **반환값 (Return)**  
   - 감가율을 고려한 보상들의 합  
   - 일반적으로 반환값은 $G$로 표기  
-  $$
-  G_t = R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} + \cdots
-  $$
-  $$
-  G_t =
-  \begin{cases}
-  R_{t+1} & (\gamma = 0) \\
-  R_{t+1} + R_{t+2} + R_{t+3} + \cdots & (\gamma = 1)
-  \end{cases}
-  $$
+
+      $$G_t = R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} + \cdots$$  
+
+      $$
+      G_t =
+      \begin{cases}
+      R_{t+1} & (\gamma = 0) \\
+      R_{t+1} + R_{t+2} + R_{t+3} + \cdots & (\gamma = 1)
+      \end{cases}
+      $$
 
 - **가치 함수와 큐 함수**  
   - **가치:** 상태의 반환 값에 대한 기댓값  
   - **가치 함수**  
     - 특정 상태에 대한 가치를 도출하는 함수  
-      $$
-      V(s) = \mathbb{E}[G_t \mid S_t = s] \rightarrow \mathbb{E}[R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} + \cdots \mid S_t = s]
-      $$
+
+      $$V(s) = \mathbb{E}[G_t \mid S_t = s] \rightarrow \mathbb{E}[R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} + \cdots \mid S_t = s]$$
+
     - 가치 함수를 통해 표현한 최적의 행동  
-      $$
-      a^* = \arg\max_{a \in A} V(s')
-      $$
+
+      $$a^* = \arg\max_{a \in A} V(s')$$
+
   - **큐 함수**  
     - 각 상태에서 특정 행동에 대한 가치를 도출하는 함수  
-      $$
-      Q(s,a) = \mathbb{E}[G_t \mid S_t = s, A_t = a] \rightarrow \mathbb{E}[R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} + \cdots \mid S_t = s, A_t = a]
-      $$
+
+      $$Q(s,a) = \mathbb{E}[G_t \mid S_t = s, A_t = a] \rightarrow \mathbb{E}[R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} + \cdots \mid S_t = s, A_t = a]$$
+
     - 큐 함수를 통해 표현한 최적의 행동  
-      $$
-      a^* = \arg\max_{a \in A} Q(s,a)
-      $$
+
+      $$a^* = \arg\max_{a \in A} Q(s,a)$$
 
 ***
 
@@ -136,21 +133,19 @@
 - **벨만 방정식 (Bellman Equation)**  
   - 현재 상태의 가치 함수와 다음 상태의 가치 함수 사이의 관계를 나타낸 식  
   - **벨만 기대 방정식**  
-    $$
-    v_\pi(S_t) = \mathbb{E}_\pi[R_{t+1} + \gamma v_\pi(S_{t+1}) \mid S_t = s]
-    $$
+
+    $$v_\pi(S_t) = \mathbb{E}_\pi[R_{t+1} + \gamma v_\pi(S_{t+1}) \mid S_t = s]$$
+
   - **큐 함수에 대한 벨만 방정식**  
-    $$
-    q_\pi(s,a) = \mathbb{E}_\pi[R_{t+1} + \gamma q_\pi(S_{t+1}, A_{t+1}) \mid S_t = s, A_t = a]
-    $$
+
+    $$q_\pi(s,a) = \mathbb{E}_\pi[R_{t+1} + \gamma q_\pi(S_{t+1}, A_{t+1}) \mid S_t = s, A_t = a]$$
+
   - **벨만 최적 방정식**  
     - 현재 정책에 대한 최적의 가치 함수  
-      $$
-      v_*(s) = \max_{\pi}v_\pi(s) = \max_{a}\mathbb{E}[R_{t+1} + \gamma v_\pi(S_{t+1}) \mid S_t = s, A_t = a]
-      $$
-      $$
-      q_*(s,a) = \max_{\pi}q_\pi(s,a) = \mathbb{E}[R_{t+1} + \gamma \max_{a'}q_*(S_{t+1}, a') \mid S_t = s, A_t = a]
-      $$
+
+      $$v_*(s) = \max_{\pi}v_\pi(s) = \max_{a}\mathbb{E}[R_{t+1} + \gamma v_\pi(S_{t+1}) \mid S_t = s, A_t = a]$$
+
+      $$q_*(s,a) = \max_{\pi}q_\pi(s,a) = \mathbb{E}[R_{t+1} + \gamma \max_{a'}q_*(S_{t+1}, a') \mid S_t = s, A_t = a]$$
 
 - **탐험과 이용 (Exploration & Exploitation)**  
   에이전트가 최적 정책을 찾기 위해서는 여러 상황에서 다양한 행동을 하며 많은 경험을 해보는 것이 필수
