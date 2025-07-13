@@ -1,6 +1,6 @@
 # Section3. Unity ML-Agents 살펴보기
 ***
-[Week2 실습](https://github.com/YoonByungSun/study-note/tree/main/2025%20Summer%20MKS/practice/3DBall)  
+[Week2 실습 - 3D Ball](https://github.com/YoonByungSun/study-note/tree/main/2025%20Summer%20MKS/practice/3DBall)  
 ***
 
 ## 1. Unity ML-Agents란?  
@@ -222,39 +222,6 @@
         summar_freq: 12000  # 학습 통계를 기록할 스텝 주기 (default: 50000)
     ```
 
-- ### 실습 1
-  
-  (1) 명령 프롬프트에서 ml-agents 폴더 경로로 이동  
-    ```bash
-    cd (ML-Agents 폴더 경로)
-    ```
-    ```bash
-    cd Desktop\ml-agents-release_22\ml-agents-release_22
-    ```
-
-  (2) 학습 명령어 입력  
-    run id는 중복되어서는 안됨
-    - 빌드에서 실행
-    ```bash
-    mlagents-learn config\ppo\3DBall.yaml --env="..\..\Study\2025 Summer MKS\practice\3DBall\UnityEnvironment" --run-id=tutorial_1
-    ```
-    - 에디터에서 실행  
-    ```bash
-    mlagents-learn config\ppo\3DBall.yaml --run-id=tutorial_1
-    ```
-
-  (3) 실행 결과
-    [![3d_ball](./img/3d_ball.gif)](https://youtu.be/4YuVOWemJuQ?si=JpWG_kfKAyK3waay)
-  
-  (4) Tensorboard를 통한 학습 진행 상황 확인  
-    ```bash
-    tensorboard --logdir=results --port=6006
-    ```
-    ![tensorboard](./img/tensorboard.png)
-
-- ### 실습 1 결과  
-  ![practice1_result](./img/practice1_result.gif)
-
 ***
 
 ## 5. Python API를 활용한 ML-Agents
@@ -313,3 +280,41 @@
 
       env.close()
     ```
+
+***
+
+## 6. 실습
+
+1. 명령 프롬프트에서 ml-agents 폴더 경로로 이동  
+
+    ```bash
+    cd Desktop\ml-agents-release_22\ml-agents-release_22
+    ```
+
+2. 학습 명령어 입력  
+
+    - 빌드에서 실행
+    ```bash
+    mlagents-learn config\ppo\3DBall.yaml --env="..\..\Study\2025 Summer MKS\practice\3DBall\UnityEnvironment" --run-id=tutorial_1
+    ```
+
+    - 에디터에서 실행  
+    ```bash
+    mlagents-learn config\ppo\3DBall.yaml --run-id=tutorial_1
+    ```
+
+3. 실행 결과  
+
+    [![3d_ball](./img/3d_ball.gif)](https://youtu.be/4YuVOWemJuQ?si=JpWG_kfKAyK3waay)
+  
+4. Tensorboard를 통한 학습 진행 상황 확인  
+
+    ```bash
+    tensorboard --logdir=results --port=6006
+    ```
+
+    ![tensorboard](./img/tensorboard.png)
+
+5. 학습 결과  
+
+  ![practice1_result](./img/practice1_result.gif)
