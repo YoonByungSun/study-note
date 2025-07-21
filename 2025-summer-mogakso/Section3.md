@@ -1,6 +1,6 @@
 # Section3. Unity ML-Agents 살펴보기
 ***
-[Week2 실습 - 3D Ball](https://github.com/YoonByungSun/study-note/tree/main/2025%20Summer%20MKS/practice/3DBall)  
+[Week2 실습 - 3D Ball](./practice/3DBall/)  
 ***
 
 ## 1. Unity ML-Agents란?  
