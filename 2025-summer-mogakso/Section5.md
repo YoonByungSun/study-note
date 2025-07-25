@@ -136,9 +136,9 @@
     game = "GridWorld" # 환경 빌드명
     os_name = platform.system() # 현재 OS
     if os_name == 'Windows':
-      env_name = f"../envs/{game}_{os_name}/{game}" # 불러올 유니티 환경 경로
+        env_name = f"../envs/{game}_{os_name}/{game}" # 불러올 유니티 환경 경로
     elif os_name == 'Darwin':
-      env_name = f"../envs/{game}_{os_name}"
+        env_name = f"../envs/{game}_{os_name}"
 
     date_time = datetime.datetime.now().strftime("%Y%m%d%H%M%S") # 코드가 실행될 때의 시간 (폴더 이름 중복 방지)
     save_path = f"./saved_models/{game}/DQN/{date_time}" # 모델 파일 저장 경로
@@ -147,29 +147,215 @@
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu") # 연산 장치 설정
 
     class DQN(torch.nn.Module):
-      def __init__(self, ** kwargs): # 네트워크 구성 레이어 정의
-          super(DQN, self).__init__(**kwargs) # 부모 클래스 초기화
+        def __init__(self, ** kwargs): # 네트워크 구성 레이어 정의
+            super(DQN, self).__init__(**kwargs) # 부모 클래스 초기화
 
-          self.conv1 = torch.nn.Conv2d(in_channels = state_size[0], out_channels = 32, kernel_size = 8, stride = 4)
-          dim1 = ((state_size[1] - 8) // 4 + 1, (state_size[2] - 8) // 4 + 1)
-          self.conv2 = torch.nn.Conv2d(in_channels = 32, out_channels = 64, kernal_size = 4, stride = 2)
-          dim2 = ((dim1[0] - 4) // 2 + 1, (dim1[1] - 4) // 2 + 1)
-          self.conv3 = torch.nn.Conv2d(in_channels = 64, out_channels = 64, kernel_size = 3, stride = 1)
-          dim3 = ((dim2[0] - 3) // 1 + 1, (dim2[1] - 3) // 1 + 1)
+            self.conv1 = torch.nn.Conv2d(in_channels = state_size[0], out_channels = 32, kernel_size = 8, stride = 4)
+            dim1 = ((state_size[1] - 8) // 4 + 1, (state_size[2] - 8) // 4 + 1)
+            self.conv2 = torch.nn.Conv2d(in_channels = 32, out_channels = 64, kernal_size = 4, stride = 2)
+            dim2 = ((dim1[0] - 4) // 2 + 1, (dim1[1] - 4) // 2 + 1)
+            self.conv3 = torch.nn.Conv2d(in_channels = 64, out_channels = 64, kernel_size = 3, stride = 1)
+            dim3 = ((dim2[0] - 3) // 1 + 1, (dim2[1] - 3) // 1 + 1)
 
-          self.flat = torch.nn.Flatten() # 1차원으로 변환
-          self.fc1 = torch.nn.Linear(64 * dim3[0] * dim3[1], 512)
-          self.q = torch.nn.Linear(512, action_size)
+            self.flat = torch.nn.Flatten() # 1차원으로 변환
+            self.fc1 = torch.nn.Linear(64 * dim3[0] * dim3[1], 512)
+            self.q = torch.nn.Linear(512, action_size)
 
-      def forward(self, x): # 네트워크 입력에 대한 큐 함숫값 계산
-          x = x.permute(0, 3, 1, 2)
-          x = F.relu(self.conv1(x))
-          x = F.relu(self.conv2(x))
-          x = F.relu(self.conv3(x))
-          x = self.flat(x)
-          x = F.relu(self.fc1(x))
-          return self.q(x)
+        def forward(self, x): # 네트워크 입력에 대한 큐 함숫값 계산
+            x = x.permute(0, 3, 1, 2)
+            x = F.relu(self.conv1(x))
+            x = F.relu(self.conv2(x))
+            x = F.relu(self.conv3(x))
+            x = self.flat(x)
+            x = F.relu(self.fc1(x))
+            return self.q(x)
     ```
   - 네트워크 레이어 정의:  
 
     ![network_layer_def](./img/network_layer_def.png)
+
+  - Agent 클래스
+    ```python
+    class DQNAgent:
+        def __init__(self):
+            self.network = DQN().to(device) # 일반 네트워크
+            self.target_network = copy.deepcopy(self.network) # 타겟 네트워크 
+            self.optimizer = torch.optim.Adam(self.network.parameters(), lr=learning_rate) # Adam 옵티마이저 사용
+            self.memory = deque(maxlen = mem_maxlen) # 정보 저장을 위한 리플레이 메모리
+            self.epsilon = epsilon_init
+            self.writer = SummaryWriter(save_path)
+
+            if load_model:
+                print(f"... Load Model from {load_path}/ckpt")
+                checkpoint = torch.load(load_path + '/ckpt', map_location = device)
+                self.network.load_state_dict(checkpoint["network"])
+                self.target_network.load_state_dict(checkpoint["network"])
+                self.optimizer.load_state_dict(checkpoint["optimizer"])
+                   
+        def get_action(self, state, training = True): # 에이전트의 행동 선택 함수
+            self.network.train(training)
+            epsilon = self.epsilon if training else epsilon_eval
+            
+            # e-Greedy 기법에 따라 행동 선택
+            if epsilon > random.random():
+                action = np.random.randint(0, action_size, size = (state.shape[0], 1))
+            else:
+                q = self.network(torch.FloatTensor(state).to(device))
+                action = torch.argmax(q, axis = -1, keepdim = True).date.cpu().numpy()
+                return action
+
+        def append_sample(self, state, action, reward, next_state, done):
+            self.memory.append((state, action, reward, next_state, done))
+            
+        def train_model(self):
+            batch = random.sample(self.memory, batch_size)
+            state = np.stack([b[0] for b in batch], axis = 0)
+            action = np.stack([b[1] for b in batch], axis = 0)
+            reward = np.stack([b[2] for b in batch], axis = 0)
+            next_state = np.stack([b[3] for b in batch], axis = 0)
+            done = np.stack([b[4] for b in batch], axis = 0)
+
+            state, action, reward, next_state, done = map(lambda x: torch.FloatTensor(x).to(device), [state, action, reward, next_state, done])
+
+            eye = torch.eye(action_size).to(device)
+            one_hot_action = eye[action.view(-1).long()]
+            q = (self.network(state) * one_hot_action).sum(1, keepdims = True) # 현재 상태에 대한 모델의 큐 함숫값
+
+            with torch.no_grad():
+                next_q = self.target_network(next_state) # 다음 상태에 대한 타겟 모델의 큐 함숫값
+                target_q = reward + next_q.max(1, keepdims = True).values * ((1 - done) * discount_factor) # q의 근사 타겟값
+
+                loss = F.smooth_l1_loss(q, target_q) # Huber loss 적용
+
+                self.optimizer.zero_grad()
+                loss.backward()
+                self.optimizer.step()
+
+                self.epsilon = max(epsilon_min, self.epsilon - epsilon_delta)
+
+                return loss.item()
+                
+        def update_target(self):
+            self.target_network.load_state_dict(self.network.state_dict())
+
+        def save_model(self):
+            print(f"... Save Model to {save_path}/ckpt...")
+            torch.save({
+                "network" : self.network.state_dict(),
+                "optimizer" : self.optimizer.state_dict(),
+            }, save_path + '/ckpt')
+
+        def write_summary(self, score, loss, epsilon, step):
+            self.writer.add_scalar("run/score", score, step)
+            self.writer.add_scalar("model/loss", loss, step)
+            self.writer.add_scalar("model/epsilon", epsilon, step)
+    ```
+  
+  - main 함수
+    ```python
+    if __name__ == '__main__':
+
+        # 유니티 환경 경로 설정
+        engine_configuration_channel = EngineConfigurationChannel()
+        env = UnityEnvironment(file_name = env_name, side_channels = [engine_configuration_channel])
+        env.reset()
+
+        # 유니티 브레인 설정
+        behavior_name = list(env.behavior_specs.keys())[0]
+        spec = env.behavior_specs[behavior_name]
+        engine_configuration_channel.set_configuration_parameters(time_scale = 12.0)
+        dec, term = env.get_steps(behavior_name)
+
+        agent = DQNAgent()
+        losses, scores, episode, score = [], [], 0, 0
+
+        for step in range(run_step + test_step):
+
+            # 학습 수행 후 테스트 모드로 변경
+            if step == run_step:
+                if train_mode:
+                    agent.save_model()
+                print("TEST START")
+                train_mode = False
+                engine_configuration_channel.set_configuration_parameters(time_scale = 1.0)
+
+            # 전처리
+            preprocess = lambda obs, goal: np.concatenate((obs * goal[0][0], obs * goal[0][1]), axis = -1) # 전처리
+            state = preprocess(dec.obs[OBS], dec.obs[GOAL_OBS])
+
+            # 행동 결정, 환경 전달, 한 스텝 진행
+            action = agent.get_action(state, train_mode)
+            real_action = action + 1
+            action_tuple = ActionTuple()
+            action_tuple.add_discrete(real_action)
+            env.set_actions(behavior_name, action_tuple)
+            env.step()
+
+            # 다음 학습을 위한 환경 정보 저장
+            dec, term = env.get_steps(behavior_name)
+            done = len(term.agent_id) > 0
+            reward = term.reward if done else dec.reward
+            next_state = preprocess(term.obs[OBS], term.obs[GOAL_OBS]) if done\
+                else preprocess(dec.obs[OBS], dec.obs[GOAL_OBS])
+            score += reward[0]
+
+            # 리플레이 메모리에 데이터 저장
+            if train_mode:
+                agent.append_sample(state[0], action[0], reward, next_state[0], [done])
+
+            if train_mode and step > max(batch_size, train_start_step):
+                # 학습 수행
+                loss = agent.train_model()
+                losses.append(loss)
+                # 타겟 네트워크 업데이트
+                if step % target_update_step == 0:
+                    agent.update_target()
+
+            # 점수 저장 및 초기화
+            if done:
+                episode += 1
+                scores.append(score)
+                score = 0
+                
+                # 게임 진행상황 출력 및 텐서보드 손실함수 값 기록
+                if episode % print_interval == 0:
+                    mean_score = np.mean(scores)
+                    mean_loss = np.mean(losses)
+                    agent.write_summary(mean_score, mean_loss, agent.epsilon, step)
+                    losses, scores = [], []
+
+                    print(f"{episode} Episode / Step: {step} / Score: {mean_score:.2f} / " +\
+                          f"Loss: {mean_loss:.4f} / Epsilon: {agent.epsilon:.4f}")
+
+            # 네트워크 모델 저장
+            if train_mode and episode % save_interval == 0:
+                agent.save_model()
+
+    env.close()
+    ```
+  
+  - 학습 결과
+    - TensorBoard로 학습 결과 확인  
+      1. 결과 폴더로 이동  
+        ```bash
+        cd saved_models\GridWorld\DQN
+        ```
+      2. 텐서보드 실행  
+        ```bash
+        tensorboard --logdir=.
+        ```
+      3. 브라우저에서 TensorBoard 접속  
+        ```
+        http://localhost:6006/
+        ```
+    - **손실함수**  
+      학습이 진행됨에 따라 **감소**  
+      (네트워크 큐 함수 예측값과 타겟값이 비슷해짐)  
+
+      ![dqn_loss_function](./img/dqn_loss_function.png)
+
+    - **보상**
+      학습이 진행됨에 따라 **증가**  
+      (Agent가 목표 지점까지 잘 도착함)  
+
+      ![dqn_reward](./img/dqn_reward.png)
