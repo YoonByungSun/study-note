@@ -52,12 +52,13 @@
   - 타겟 네트워크 (Target Network)
     - 학습에 필요한 타겟 값을 계산  
 
-      $y=
+      $$
+      y = 
       \begin{cases}
       r \\
-      r+\gamma(\max_{a'}Q(s+{t+1}, a'; \theta^-))
+      r + \gamma \left( \max_{a'} Q(s_{t+1}, a'; \theta^-) \right)
       \end{cases}
-      $
+      $$
 
     - 타겟값 $y$와 예측값 $Q(s_t,a;\theta)$의 차이가 최소가 되도록 학습 수행
     - 타겟값
@@ -71,13 +72,14 @@
         - 해당 스텝 동안 동일한 입력에 대해 동일한 타겟값을 도출
         - 학습의 안정성 향상에 크게 도움이 되는 기법
     - 손실함수 값을 최소화하기 위해 Huber loss 사용  
-      - $Error = y - Q(s_t, a_t;\theta)$
-      - $Loss = 
-      \begin{cases}
-      Error^2 & if |Error| \lt 1 \\
-      |Error| & if |Error| \geq 1
-      \end{cases}
-      $
+      $$Error = y - Q(s_t, a_t;\theta)$$
+      $$
+        Loss =
+        \begin{cases}
+        \text{Error}^2 & \text{if } |\text{Error}| < 1 \\
+        |\text{Error}| & \text{if } |\text{Error}| \geq 1
+        \end{cases}
+        $$
 
       ![huber](./img/huber.png)
 
@@ -354,7 +356,7 @@
 
       ![dqn_loss_function](./img/dqn_loss_function.png)
 
-    - **보상**
+    - **보상**  
       학습이 진행됨에 따라 **증가**  
       (Agent가 목표 지점까지 잘 도착함)  
 
