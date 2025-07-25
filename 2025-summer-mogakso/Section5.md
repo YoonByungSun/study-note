@@ -52,13 +52,7 @@
   - 타겟 네트워크 (Target Network)
     - 학습에 필요한 타겟 값을 계산  
 
-      $$
-      y = 
-      \begin{cases}
-      r \\
-      r + \gamma \left( \max_{a'} Q(s_{t+1}, a'; \theta^-) \right)
-      \end{cases}
-      $$
+      ![q_target](https://latex.codecogs.com/png.latex?%5Cdpi%7B150%7Dy%3D%0A%20%20%20%20%20%5Cbegin%7Bcases%7D%0A%20%20%20%20%20r%20%5C%5C%0A%20%20%20%20%20r%2B%5Cgamma%28%5Cmax_%7Ba%27%7DQ%28s%2B%7Bt%2B1%7D%2C%20a%27%3B%20%5Ctheta%5E-%29%29%0A%20%20%20%20%20%5Cend%7Bcases%7D)
 
     - 타겟값 $y$와 예측값 $Q(s_t,a;\theta)$의 차이가 최소가 되도록 학습 수행
     - 타겟값
@@ -72,14 +66,7 @@
         - 해당 스텝 동안 동일한 입력에 대해 동일한 타겟값을 도출
         - 학습의 안정성 향상에 크게 도움이 되는 기법
     - 손실함수 값을 최소화하기 위해 Huber loss 사용  
-      $$Error = y - Q(s_t, a_t;\theta)$$
-      $$
-        Loss =
-        \begin{cases}
-        \text{Error}^2 & \text{if } |\text{Error}| < 1 \\
-        |\text{Error}| & \text{if } |\text{Error}| \geq 1
-        \end{cases}
-        $$
+      ![huber_function](https://latex.codecogs.com/png.latex?\dpi{150}\begin{gather*}Error%20=%20y%20-%20Q(s_t,%20a_t;\theta)%20\\\\Loss%20=%20\begin{cases}Error^2%20&%20\text{if%20}|Error|%20<%201%20\\\\|Error|%20&%20\text{if%20}|Error|%20\geq%201\end{cases}\end{gather*})
 
       ![huber](./img/huber.png)
 
