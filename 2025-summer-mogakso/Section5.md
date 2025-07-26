@@ -6,7 +6,7 @@
 ## 0. 강화학습의 종류
 
 - #### 가치 기반 강화학습 (Value-based Reinforcement Learning)
-  - 대표적인 알고리즘: Deep Q Network (DQN)
+  - 대표적인 알고리즘: [Deep Q Network (DQN)](#1-dqn-이론)
   - 가치를 기반으로 의사결정
   - 큐 함수를 학습하여 최적의 큐 함수를 얻고 이를 통해 의사결정 수행
   - 최적의 큐 함수는 
@@ -20,7 +20,8 @@
   - 시간차 오차의 값이 0에 가까워지도록 학습
 
 - #### 정책 기반 강화학습 (Policy-based Reinforcement Learning)
-  - *(Section6. A2C 알고리즘 학습 후 추가 작성)*
+  - [A2C 알고리즘](./Section6.md#1-a2c-이론)
+  - 정책을 기반으로 의사결정
 
 ***
 
@@ -161,7 +162,7 @@
     ```
   - 네트워크 레이어 정의:  
 
-    ![network_layer_def](./img/network_layer_def.png)
+    ![dqn_network](./img/dqn_network.png)
 
   - Agent 클래스
     ```python
@@ -320,7 +321,7 @@
             if train_mode and episode % save_interval == 0:
                 agent.save_model()
 
-    env.close()
+        env.close()
     ```
   
   - 학습 결과
