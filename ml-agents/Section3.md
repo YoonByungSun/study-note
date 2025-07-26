@@ -295,7 +295,7 @@
 
     - 빌드에서 실행
     ```bash
-    mlagents-learn config\ppo\3DBall.yaml --env="..\..\Study\2025 Summer MKS\practice\3DBall\UnityEnvironment" --run-id=tutorial_1
+    mlagents-learn config\ppo\3DBall.yaml --env="..\..\Study\ml-agents\practice\3DBall\UnityEnvironment" --run-id=tutorial_1
     ```
 
     - 에디터에서 실행  
